@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Test</string>
+    <string name="app_name">HubRemote</string>
     <string name="title_activity_connected">Connected</string>
     <string name="add_network">+ Network</string>
 </resources>
