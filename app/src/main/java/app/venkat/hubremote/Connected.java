@@ -2,6 +2,7 @@ package app.venkat.hubremote;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Looper;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -58,16 +59,30 @@ public class Connected extends Activity {
 
 
                     if (programList.size() == 0) {
-                        Toast.makeText(Connected.this, "No programs loaded from server", Toast.LENGTH_LONG).show();
+                        runOnUiThread(new Runnable() {
+                                          @Override
+                                          public void run() {
+                                              Toast.makeText(Connected.this, "No programs loaded from server", Toast.LENGTH_LONG).show();
+                                          }
+                                      }
+
+                        );
                     }
 
+                } catch (IOException |
+                        ClassNotFoundException e
+                        )
 
-                } catch (IOException | ClassNotFoundException e) {
+                {
                     Log.e("Error", "" + e);
                     finish();
                 }
             }
-        }).start();
+        }
+
+        ).
+
+                start();
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, programList);
 
@@ -76,74 +91,86 @@ public class Connected extends Activity {
 
         lv.setAdapter(adapter);
 
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener()
 
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                String choice = String.valueOf(adapterView.getItemAtPosition(i));
-                if (!choice.isEmpty()) {
-                    try {
-                        Log.v("Message", choice);
-                        out.writeObject(choice);
+                                  {
 
-                    } catch (IOException e) {
-                        Log.e("Error", "Could not send 'choice' to server");
-                    }
-                }
+                                      @Override
+                                      public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                                          String choice = String.valueOf(adapterView.getItemAtPosition(i));
+                                          if (!choice.isEmpty()) {
+                                              try {
+                                                  Log.v("Message", choice);
+                                                  out.writeObject(choice);
 
-            }
-        });
+                                              } catch (IOException e) {
+                                                  Log.e("Error", "Could not send 'choice' to server");
+                                              }
+                                          }
 
+                                      }
+                                  }
 
-        ret.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                finish();
-            }
-        });
-
-        reload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(final View view) {
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        try {
-                            out.writeObject("reload");
+        );
 
 
-                            Object temp = in.readObject();
+        ret.setOnClickListener(new View.OnClickListener()
 
-                            if (temp instanceof ArrayList<?>) {
-                                ArrayList<String> newList = (ArrayList<String>) temp;
-                                int t = programList.size();
-                                for (int i = 0; i < t; i++)
-                                    programList.remove(0);
-                                programList.addAll(newList);
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        ((BaseAdapter)adapter).notifyDataSetChanged();
-                                    }
-                                });
+                               {
+                                   @Override
+                                   public void onClick(View view) {
+                                       finish();
+                                   }
+                               }
 
-                            }
+        );
 
-                        } catch (IOException e) {
-                            Log.e("ERROR", "Input/Output error with server.");
+        reload.setOnClickListener(new View.OnClickListener()
 
-                        } catch (Exception e) {
-                            Log.e("ERROR", "Something went wrong...." + e);
+                                  {
+                                      @Override
+                                      public void onClick(final View view) {
+                                          new Thread(new Runnable() {
+                                              @Override
+                                              public void run() {
+                                                  try {
+                                                      out.writeObject("reload");
 
-                            if (e instanceof ClassNotFoundException) {
-                                Log.e("Error", "Object sent Class not found");
-                            }
 
-                        }
-                    }
-                }).start();
-            }
-        });
+                                                      Object temp = in.readObject();
+
+                                                      if (temp instanceof ArrayList<?>) {
+                                                          ArrayList<String> newList = (ArrayList<String>) temp;
+                                                          int t = programList.size();
+                                                          for (int i = 0; i < t; i++)
+                                                              programList.remove(0);
+                                                          programList.addAll(newList);
+                                                          runOnUiThread(new Runnable() {
+                                                              @Override
+                                                              public void run() {
+                                                                  ((BaseAdapter) adapter).notifyDataSetChanged();
+                                                              }
+                                                          });
+
+                                                      }
+
+                                                  } catch (IOException e) {
+                                                      Log.e("ERROR", "Input/Output error with server.");
+
+                                                  } catch (Exception e) {
+                                                      Log.e("ERROR", "Something went wrong...." + e);
+
+                                                      if (e instanceof ClassNotFoundException) {
+                                                          Log.e("Error", "Object sent Class not found");
+                                                      }
+
+                                                  }
+                                              }
+                                          }).start();
+                                      }
+                                  }
+
+        );
 
 
     }
